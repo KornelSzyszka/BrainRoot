@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 import uuid
 
 from user.models import AuthUser
@@ -14,9 +15,13 @@ class Map(models.Model):
     creation_date = models.DateTimeField(auto_now_add=True)
     last_edition = models.DateTimeField(auto_now=True)
     last_editor = models.ForeignKey(
-        AuthUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='maps'
+        AuthUser, on_delete=models.SET_NULL, null=True, blank=True
     )
     deleted = models.BooleanField(default=False)
+
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="maps"
+    )
 
     def __str__(self):
         return self.name

@@ -1,3 +1,6 @@
 from django.contrib import admin
 
-# Register your models here.
+from maps.models import Map, Tile
+
+admin.site.register(Map)
+admin.site.register(Tile)
