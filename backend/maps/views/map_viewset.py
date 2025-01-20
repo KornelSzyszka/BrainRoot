@@ -2,6 +2,7 @@ from typing import Type
 
 from django.db.models import QuerySet, Q
 from rest_framework import viewsets, status
+from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, DestroyModelMixin, UpdateModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -11,7 +12,7 @@ from maps.serializers import MapListSerializer, MapDetailSerializer
 from user.models import AuthUser
 
 
-class MapViewSet(viewsets.ModelViewSet):
+class MapViewSet(ListModelMixin, RetrieveModelMixin, DestroyModelMixin, UpdateModelMixin, viewsets.GenericViewSet):
     def get_serializer_class(self) -> Type[MapListSerializer | MapDetailSerializer]:
         if self.action == "list":
             return MapListSerializer

@@ -12,14 +12,30 @@ class MapListSerializer(serializers.ModelSerializer):
         read_only_fields = ["owner", "creation_date"]
 
 
+class TileDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tile
+        fields = [
+            "id",
+            "name",
+            "parent",
+            "position_x",
+            "position_y",
+            "description",
+        ]
+        read_only_fields = ["id"]
+
+
 class MapDetailSerializer(MapListSerializer):
     owner = serializers.PrimaryKeyRelatedField(read_only=True)
+    tiles = TileDetailSerializer(many=True, read_only=True)
 
     class Meta(MapListSerializer.Meta):
         fields = [
             "id",
             "name",
             "owner",
+            "tiles",
             "creation_date",
             "is_official",
             "public",
@@ -29,16 +45,17 @@ class MapDetailSerializer(MapListSerializer):
             "last_edition",
             "last_editor",
         ]
+        read_only_fields = ["tiles"]
 
 
-class TileSerializer(serializers.ModelSerializer):
+class TileMapSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tile
         fields = [
             "id",
             "name",
-            "map",
             "parent",
-            "position",
-            "description",
+            "position_x",
+            "position_y",
         ]
+        read_only_fields = ["id"]

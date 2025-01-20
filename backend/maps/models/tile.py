@@ -13,7 +13,10 @@ class Tile(models.Model):
     parent = models.ForeignKey(
         'self', on_delete=models.SET_NULL, null=True, blank=True, related_name='children'
     )
-    position = models.JSONField   # upper-left corner; {x: int, y: int}
+    # upper-left corner; {x: int, y: int}
+    position_x = models.IntegerField(default=0, null=False, blank=False)
+    position_y = models.IntegerField(default=0, null=False, blank=False)
+
     description = models.TextField(blank=True, null=True)
     deleted = models.BooleanField(default=False)
 
