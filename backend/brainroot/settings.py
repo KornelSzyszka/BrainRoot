@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "drf_yasg",
+    "corsheaders",
     "user",
     "maps",
 ]
@@ -54,6 +55,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
 ]
 
 REST_FRAMEWORK = {
@@ -63,6 +66,12 @@ REST_FRAMEWORK = {
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
 }
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8080",
+]
+
+CORS_ALLOW_CREDENTIALS = True
 
 ROOT_URLCONF = "brainroot.urls"
 

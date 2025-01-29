@@ -12,3 +12,7 @@ fetch(`${baseURL}/user/users`, {
     })
     .then(data => console.log(data))
     .catch(error => console.error(error));
+
+function kek() {
+    alert("Hello, World!")
+}
