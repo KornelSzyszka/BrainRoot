@@ -10,6 +10,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 class UserDetailSerializer(UserSerializer):
     class Meta:
+        model = AuthUser
         fields = ["id", "username"]
         read_only_fields = ["id", "username"]
 

@@ -10,29 +10,19 @@
     <div id="content">
         <navbar id="nav">
             <a href="index.html" id="logo">BrainRoot</a>
-            <a href="register.html" class="register-button">Register</a>
+            <div class="button-container">
+                <a href="login.html" id="loginButt" class="button login-button">Login</a>
+                <a href="register.html" id="registerButt" class="button register-button">Register</a>
+            </div>
         </navbar>
-
-        <div class="tile-container">
-            <div class="tile">
-                <a href="details.html?id=1" data-id="1">Tile 1</a>
+        <section id="map-section">
+            <h2>All Maps</h2>
+            <div class="tile-container">
+                <div class="tile">
+                    <a href="creator.html">Create new map</a>
+                </div>
             </div>
-            <div class="tile">
-                <a href="details.html?id=1" data-id="1">Tile 2</a>
-            </div>
-            <div class="tile">
-                <a href="details.html?id=1" data-id="1">Tile 3</a>
-            </div>
-            
-            <div class="tile">
-                <a href="details.html?id=1" data-id="1">Tile 4</a>
-            </div>
-            <div class="tile">
-                <a href="details.html?id=1" data-id="1">Tile 5</a>
-            </div>
-            <div class="tile">
-                <a href="details.html?id=1" data-id="1">Tile 6</a>
-            </div>
+        </section>
     </div>
     <script src="script.js"></script>
 </body>
