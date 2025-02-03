@@ -49,92 +49,20 @@ async function fetchMapDetails(mapId) {
         if (!response.ok) throw new Error(`Error fetching map details: ${response.status}`);
 
         const mapData = await response.json();
-        //renderMapHierarchy(mapData);
         return mapData;
     } catch (error) {
         console.error("Error loading map details:", error);
     }
 }
 
-function renderMapHierarchy(map) {
-    const container = document.createElement("div");
-    container.classList.add("tile-container-details");
-
-    const tileMap = new Map();
-    map.tiles.forEach(tile => {
-        tileMap.set(tile.id, tile);
-        tile.children = [];
-    });
-
-    map.tiles.forEach(tile => {
-        if (tile.parent && tileMap.has(tile.parent)) {
-            tileMap.get(tile.parent).children.push(tile);
-        }
-    });
-
-    function createTileElement(tile) {
-        const tileDiv = document.createElement("div");
-        tileDiv.classList.add("tile-details");
-        tileDiv.innerHTML = `
-            <h3>${tile.name}</h3>
-        `;
-
-        if (tile.children.length > 0) {
-            const childrenContainer = document.createElement("div");
-            childrenContainer.classList.add("children");
-            tile.children.forEach(child => {
-                childrenContainer.appendChild(createTileElement(child));
-            });
-            tileDiv.appendChild(childrenContainer);
-        }
-
-        return tileDiv;
-    }
-
-    map.tiles
-        .filter(tile => !tile.parent || !tileMap.has(tile.parent))
-        .forEach(rootTile => {
-            container.appendChild(createTileElement(rootTile));
-        });
-
-    document.getElementById("content-details").appendChild(container);
-}
-
-async function deleteMap(mapId) {
-    console.trace();
-    try {
-        const response = await fetch(`${baseURL}/map/${mapId}/`, {
-            headers: {
-                "Authorization": `Bearer ${token}`,
-                "Content-Type": "application/json",
-            },
-            method: "DELETE",
-        });
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Could not delete map: ${response.status} - ${errorText}`);
-        }
-
-        console.log(`Map ${mapId} deleted successfully`);
-        return true;
-
-
-    } catch (error) {
-        console.error("Error deleting map:", error);
-        return false;
-    }
-}
-
-
 function generateTiles() {
     fetchMapDetails(mapId).then((mapData) => {
-        const data = mapData.tiles.map(tile => {
-            return {
-                y: tile.position_x,
-                x: tile.position_y,
-            }
-        });
+        const data = mapData.tiles.map(tile => ({
+            y: tile.position_x,
+            x: tile.position_y,
+            name: tile.name,
+            description: tile.description
+        }));
 
         data.sort((a, b) => {
             if (a.x !== b.x) {
@@ -143,45 +71,156 @@ function generateTiles() {
             return a.y - b.y;
         });
 
-        const names = mapData.tiles.map(tile => tile.name);
         let storage = [];
         let currentRow = 0;
 
-        const info = data.reduce(
-            (acc, crd) => {
-                if (crd.x > currentRow) {
-                    acc.push(storage);
-                    storage = [];
-                    currentRow = crd.x;
-                }
-                storage.push(crd.y);
-                return acc;
-            },
-            []
-        )
+        const info = data.reduce((acc, crd) => {
+            if (crd.x > currentRow) {
+                acc.push(storage);
+                storage = [];
+                currentRow = crd.x;
+            }
+            storage.push(crd);
+            return acc;
+        }, []);
         info.push(storage);
 
-        let renderedBoxes = 0;
         const board = document.querySelector("#board");
+        board.innerHTML = ""; // Czyszczenie poprzednich elementów
+
         for (let r = 0; r < info.length; r++) {
             let row = document.createElement("div");
             row.classList.add("row");
-            const rowWidth = Math.max(...info[r]) + 1;
+            const rowWidth = Math.max(...info[r].map(item => item.y)) + 1;
+
             for (let n = 0; n < rowWidth; n++) {
                 const box = document.createElement("div");
                 box.classList.add("box");
-                if (!info[r].includes(n)) {
+
+                const tile = info[r].find(item => item.y === n);
+                if (!tile) {
                     box.classList.add("hidden");
-                }
-                else {
-                    box.textContent = names[renderedBoxes];
-                    renderedBoxes++;
+                } else {
+                    box.textContent = tile.name;
+                    box.dataset.index = n; // Dodanie indeksu dla poprawnego przypisania eventu
                 }
                 row.appendChild(box);
             }
             board.appendChild(row);
         }
-    })
+
+        // Po utworzeniu kafelków, przypisujemy do nich eventy
+        setupTileClickEvents(mapData);
+    });
+}
+
+function setupTileClickEvents(mapData) {
+    const modal = document.getElementById("customAlert");
+    const closeButton = document.querySelector(".close-btn");
+    const tileNameElem = document.getElementById("tileName");
+    const tileDescriptionElem = document.getElementById("tileDescription");
+
+    document.querySelectorAll(".box").forEach((box) => {
+        box.addEventListener("click", () => {
+            const tile = mapData.tiles.find(t => t.name === box.textContent);
+            if (tile) {
+                tileNameElem.textContent = tile.name;
+                tileDescriptionElem.textContent = tile.description;
+                modal.style.display = "flex"; // Pokazujemy modal
+            }
+        });
+    });
+
+    closeButton.addEventListener("click", () => {
+        modal.style.display = "none"; // Ukrywamy modal
+    });
+
+    window.addEventListener("click", (event) => {
+        if (event.target === modal) {
+            modal.style.display = "none";
+        }
+    });
+}
+
+function setupModal() {
+    const modal = document.getElementById("customAlert");
+    const closeButton = document.querySelector(".close-btn");
+    const tileNameElem = document.getElementById("tileName");
+    const tileDescriptionElem = document.getElementById("tileDescription");
+
+    // Create modal styles
+    const modalStyles = `
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.7);
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    `;
+
+    // Apply modal styles
+    modal.setAttribute('style', modalStyles);
+
+    // Create modal content styles
+    const modalContentStyles = `
+        background: #222;
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+        max-width: 500px;
+        color: white;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        position: relative;
+    `;
+
+    // Apply modal content styles
+    const modalContent = document.querySelector('.modal-content');
+    modalContent.setAttribute('style', modalContentStyles);
+
+    // Add close button styles
+    const closeBtnStyles = `
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: #8B0A1A;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        font-size: 10px;
+        cursor: pointer;
+        border-radius: 5px;
+        width: 10px;
+        height: 15px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    `;
+
+    // Apply close button styles
+    closeButton.setAttribute('style', closeBtnStyles);
+
+    closeButton.addEventListener("mouseover", () => {
+        closeButton.style.backgroundColor = "#BF0F32";
+    });
+
+    closeButton.addEventListener("mouseout", () => {
+        closeButton.style.backgroundColor = "#8B0A1A";
+    });
+
+    // Event listeners
+    closeButton.addEventListener("click", () => {
+        modal.style.display = "none";
+    });
+
+    window.addEventListener("click", (event) => {
+        if (event.target === modal) {
+            modal.style.display = "none";
+        }
+    });
 }
 
 window.onload = async function () {
@@ -191,12 +230,14 @@ window.onload = async function () {
         console.log("Token obtained successfully");
     } else {
         console.log("Failed to obtain token");
-    };
+    }
 
     mapId = getMapIdFromURL();
     if (mapId) {
-        fetchMapDetails(mapId);
-    };
+        fetchMapDetails(mapId).then((mapData) => {
+            generateTiles();
+        });
+    }
 
     const deleteButton = document.getElementById('deleteButton');
     deleteButton.addEventListener('click', async function () {
@@ -204,5 +245,5 @@ window.onload = async function () {
             window.location.href = 'index.html';
         }
     });
-    generateTiles();
-}
+    setupModal();
+};

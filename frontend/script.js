@@ -209,7 +209,7 @@ window.onload = async function () {
         fetchMapDetails(mapId);
     };
 
-    function handleRegisterClick(event) {
+    async function handleRegisterClick(event) {
         event.preventDefault();
 
         const emailInput = document.getElementById('email');
@@ -222,14 +222,30 @@ window.onload = async function () {
             const password = passwordInput.value.trim();
 
             if (email && username && password) {
-                postUser(email, username, password).then(() => {
-                    emailInput.value = '';
-                    usernameInput.value = '';
-                    passwordInput.value = '';
-                    window.location.href = "index.html"
-                });
+                const result = await postUser(email, username, password);
+
+                if (result) {
+                    // Rejestracja udana, usuwamy przyciski logowania i rejestracji
+                    const loginButton = document.getElementById('loginButt');
+                    const registerButton = document.getElementById('registerButt');
+
+                    if (loginButton) {
+                        loginButton.remove();
+                    }
+                    if (registerButton) {
+                        registerButton.remove();
+                    }
+
+                    // Możemy tutaj również wykonać inne akcje po udanej rejestracji
+                    console.log("Użytkownik zarejestrowany pomyślnie!");
+
+                    // Możemy przekierować użytkownika do głównej strony lub innego celu
+                    window.location.href = 'index.html';
+                } else {
+                    console.error("Rejestracja nieudana");
+                }
             } else {
-                alert("Please fill out both email, username and password fields.");
+                alert("Proszę wypełnić oba pole email, nazwę użytkownika i hasło.");
             }
         }
     }
