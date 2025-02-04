@@ -86,7 +86,7 @@ function generateTiles() {
         info.push(storage);
 
         const board = document.querySelector("#board");
-        board.innerHTML = ""; // Czyszczenie poprzednich elementów
+        board.innerHTML = "";
 
         for (let r = 0; r < info.length; r++) {
             let row = document.createElement("div");
@@ -102,14 +102,12 @@ function generateTiles() {
                     box.classList.add("hidden");
                 } else {
                     box.textContent = tile.name;
-                    box.dataset.index = n; // Dodanie indeksu dla poprawnego przypisania eventu
+                    box.dataset.index = n;
                 }
                 row.appendChild(box);
             }
             board.appendChild(row);
         }
-
-        // Po utworzeniu kafelków, przypisujemy do nich eventy
         setupTileClickEvents(mapData);
     });
 }
@@ -126,13 +124,13 @@ function setupTileClickEvents(mapData) {
             if (tile) {
                 tileNameElem.textContent = tile.name;
                 tileDescriptionElem.textContent = tile.description;
-                modal.style.display = "flex"; // Pokazujemy modal
+                modal.style.display = "flex";
             }
         });
     });
 
     closeButton.addEventListener("click", () => {
-        modal.style.display = "none"; // Ukrywamy modal
+        modal.style.display = "none";
     });
 
     window.addEventListener("click", (event) => {
@@ -145,10 +143,7 @@ function setupTileClickEvents(mapData) {
 function setupModal() {
     const modal = document.getElementById("customAlert");
     const closeButton = document.querySelector(".close-btn");
-    const tileNameElem = document.getElementById("tileName");
-    const tileDescriptionElem = document.getElementById("tileDescription");
 
-    // Create modal styles
     const modalStyles = `
         display: none;
         position: fixed;
@@ -162,10 +157,8 @@ function setupModal() {
         z-index: 1000;
     `;
 
-    // Apply modal styles
     modal.setAttribute('style', modalStyles);
 
-    // Create modal content styles
     const modalContentStyles = `
         background: #222;
         padding: 20px;
@@ -177,11 +170,9 @@ function setupModal() {
         position: relative;
     `;
 
-    // Apply modal content styles
     const modalContent = document.querySelector('.modal-content');
     modalContent.setAttribute('style', modalContentStyles);
 
-    // Add close button styles
     const closeBtnStyles = `
         position: absolute;
         top: 10px;
@@ -200,7 +191,6 @@ function setupModal() {
         align-items: center;
     `;
 
-    // Apply close button styles
     closeButton.setAttribute('style', closeBtnStyles);
 
     closeButton.addEventListener("mouseover", () => {
@@ -211,7 +201,6 @@ function setupModal() {
         closeButton.style.backgroundColor = "#8B0A1A";
     });
 
-    // Event listeners
     closeButton.addEventListener("click", () => {
         modal.style.display = "none";
     });

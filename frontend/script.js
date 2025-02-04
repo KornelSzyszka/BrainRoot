@@ -225,7 +225,6 @@ window.onload = async function () {
                 const result = await postUser(email, username, password);
 
                 if (result) {
-                    // Rejestracja udana, usuwamy przyciski logowania i rejestracji
                     const loginButton = document.getElementById('loginButt');
                     const registerButton = document.getElementById('registerButt');
 
@@ -235,11 +234,7 @@ window.onload = async function () {
                     if (registerButton) {
                         registerButton.remove();
                     }
-
-                    // Możemy tutaj również wykonać inne akcje po udanej rejestracji
                     console.log("Użytkownik zarejestrowany pomyślnie!");
-
-                    // Możemy przekierować użytkownika do głównej strony lub innego celu
                     window.location.href = 'index.html';
                 } else {
                     console.error("Rejestracja nieudana");
